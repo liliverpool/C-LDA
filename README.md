@@ -10,4 +10,4 @@ After the training, the topic distribution, word distribution and word pair co-o
 
 The test program is in the file "python test. py".
 
-Run "python test.py" and test the perplexities for Contextual-LDA and traditional LDA.
+Run "python test.py" and test the perplexities for C-LDA and traditional LDA.
