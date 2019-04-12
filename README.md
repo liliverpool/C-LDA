@@ -8,6 +8,6 @@ The main program is in the "C_LDA.py" file.
 
 After the training, the topic distribution, word distribution and word pair co-occurrence topic distribution will be returned and saved under the current folder.
 
-The test program is in the file "python test_CLDA.py".
+The test program is the file "test_CLDA.py".
 
 Run "python test.py" and test the perplexities for C-LDA and traditional LDA.
