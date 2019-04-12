@@ -29,7 +29,7 @@ stop_list = readtext.split('\n')
 texts = [[word for word in line.lower().split() if word not in stop_list] for line in tdt2_data] 
 t_data = texts[:clip]
 
-save_p = "Contextual_LDA_EXP" + str(clip)+"_" +str(c_len)+"_"+str(palpha)+"_"+str(pbeta)+"_"+str(pgamma)+r"\"
+save_p = "Contextual_LDA_EXP" + str(clip)+"_" +str(c_len)+"_"+str(palpha)+"_"+str(pbeta)+"_"+str(pgamma)+"\\"
 # RUN C-LDA
 C_LDA.run(t_data, start, end, iteration_num, save_p, clip, c_len, palpha, pbeta, pgamma)
 
@@ -43,7 +43,7 @@ plt.xlabel(u"Iterations")
 plt.legend(loc="upper right")
 plt.show()
 
-save_p2 = "tradition_LDA_EXP" + str(clip)+"_" +str(c_len)+"_"+str(palpha)+"_"+str(pbeta)+"_"+str(pgamma)+r"\"
+save_p2 = "tradition_LDA_EXP" + str(clip)+"_" +str(c_len)+"_"+str(palpha)+"_"+str(pbeta)+"_"+str(pgamma)+"\\"
 t_LDA.run(t_data, start, end, iteration_num, save_p2, clip, c_len, palpha, pbeta, pgamma)
 
 dataset = save_p2
