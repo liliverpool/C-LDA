@@ -12,19 +12,8 @@ import os
 
 model_name = "LDA"
 
-
-def create_dictionary(data):
-    global word_index, index_word
-    for doc in data:
-        for w in doc:
-            if w not in word_index:
-                word_index[w] = len(word_index)
-    index_word = dict(zip(word_index.values(), word_index.keys()))
-
-
-stop_file = open('stopwords2.txt', 'r')
-readtext = stop_file.read()
-stop_list = readtext.split('\n')
+# parameter settings and initializations
+# the number of documnets, topics, words and other hyper paramters for dirichlet distribution
 start = 9
 end = 1
 data_clip = 1
@@ -38,6 +27,8 @@ alpha = 0.5
 beta = 0.5
 gamma = 0.5
 iteration_num = 30
+
+# all used distributions
 topic_word = 0*np.ones([1, 1])
 topic_word_list = 0*np.ones([1, 1, 1])
 doc_topic = 0*np.ones([1, 1])
@@ -53,6 +44,19 @@ st= 0
 ed= 0
 total_time = 0
 
+# create dictionary for training data
+def create_dictionary(data):
+    global word_index, index_word
+    for doc in data:
+        for w in doc:
+            if w not in word_index:
+                word_index[w] = len(word_index)
+    index_word = dict(zip(word_index.values(), word_index.keys()))
+stop_file = open('stopwords2.txt', 'r')
+readtext = stop_file.read()
+stop_list = readtext.split('\n')
+
+# topic assignment based on a topic distribution  
 def get_a_topic(doc_topic_distribution):
     topics = np.random.multinomial(1, doc_topic_distribution)
     topic = -1
@@ -62,16 +66,7 @@ def get_a_topic(doc_topic_distribution):
             break
     return topic
 
-def get_a_topic_old(doc_topic_distribution):
-    z = pm.distributions.multivariate.Multinomial.dist(1, doc_topic_distribution)
-    topics = z.random()
-    topic = -1
-    for i in range(0, len(topics)):
-        if topics[i] > 0:
-            topic = i
-            break
-    return topic
-
+# initialization of all distributions
 def initialize_distributions():
     global doc_topic_distributions, topic_word_distributions, topic_word_distribution
     doc_topic_distributions.clear()
@@ -87,6 +82,7 @@ def initialize_distributions():
         topic_word_distribution.append(1./words_num*np.ones([words_num]))
     return
 
+# malloc the memories topic assignments of each word for each document
 def initial_docs_list():
     global data, docs_list
     docs_list.clear()
@@ -94,6 +90,7 @@ def initial_docs_list():
          docs_list.append(np.ones([len(doc), 2], dtype = np.uint8))
     return
 
+# initialization of topic assignments for each word in each document
 def initialize_values_docs_list():
     global docs_list
     for d in range(0, len(data)):
@@ -101,6 +98,7 @@ def initialize_values_docs_list():
            docs_list[d][w] = [word_index[data[d][w]], get_a_topic(doc_topic_distributions[d])]
     return
 
+# compute topics for each document
 def compute_doc_topic():
     global doc_topic
     doc_topic = np.array(doc_topic)
@@ -108,7 +106,8 @@ def compute_doc_topic():
     for i in range(len(docs_list)):
         for j in range(0, len(docs_list[i])):
             doc_topic[i][docs_list[i][j][1]] += 1
-
+            
+# compute the topics for document d
 def compute_doc_topic_doc(d):
     global doc_topic
     doc_topic[d] = np.array(doc_topic[d])
@@ -117,6 +116,7 @@ def compute_doc_topic_doc(d):
     for j in range(0, len(docs_list[d])):
         doc_topic[d][docs_list[d][j][1]] += 1
 
+# compute topic-word distributions 
 def compute_topic_word():
     global topic_word
     topic_word = np.array(topic_word)
@@ -126,6 +126,7 @@ def compute_topic_word():
             topic_word[docs_list[i][j][1]][docs_list[i][j][0]] += 1
     return
 
+# computer topic word distribution of document d
 def compute_topic_word_list_doc(d):  
     global docs_list
     topic_word_list[d] = np.array(topic_word_list[d])
@@ -135,6 +136,7 @@ def compute_topic_word_list_doc(d):
             topic_word_list[d][docs_list[i][j][1]][docs_list[i][j][0]] += 1
     return
 
+# get the number of word w assigned by topic k in document d
 def get_n_d_k(d, w, k):
     n_d_k = 0
     for i in range(0, len(docs_list[d])):
@@ -142,7 +144,7 @@ def get_n_d_k(d, w, k):
             n_d_k += 1
     return n_d_k
 
-#
+# get the number of word w assigned by topic k in all documents except the current one
 def get_n_w_k(d, w, k):
     n_w_k = 0
     if(docs_list[d][w][1] - k == 0):
@@ -151,7 +153,7 @@ def get_n_w_k(d, w, k):
         n_w_k = topic_word[k][docs_list[d][w][0]]
     return n_w_k
 
-# 
+# get the number of words assigned by topic k in document d 
 def get_total_n_k(d, w, k):
     total_n_k = np.sum(topic_word[k])
     if(docs_list[d][w][1] - k == 0):
@@ -172,7 +174,7 @@ def compute_numerator(context_words, w2, k, c_len):
             result += get_context_num_w2(doc, w1, w2, k, c_len)
     return result
 
-#
+# recompute topic distribution for word w
 def recompute_w_topic_distribution(d, w):
     new_topic_distribution = np.ones([topic_num])
     num_list = np.ones([topic_num])
@@ -190,7 +192,7 @@ def recompute_w_topic_distribution(d, w):
         new_topic_distribution[topic] = new_topic_distribution[topic] / np.sum(num_list)
     return new_topic_distribution
     
-#
+# gibbs_sampling iteration
 def gibbs_sampling():
     global doc_topic_distributions, eta_list, gamma_list, st, ed, total_time
     st = 0
@@ -204,7 +206,8 @@ def gibbs_sampling():
             docs_list[d][w][1] = new_topic
         ed = time.time()
         total_time += ed - st
-           
+
+# recompute all distribuiotns
 def recompute_distributions():
     for d in range(0, len(doc_topic)):
 #        print(doc_topic_distributions)
