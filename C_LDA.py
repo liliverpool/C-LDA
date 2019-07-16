@@ -5,7 +5,6 @@ Created on Thu May 29 18:06:50 2018
 @author: li wenbo
 """
 
-import pymc3 as pm
 import numpy as np
 import math
 from pprint import pprint
