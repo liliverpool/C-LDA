@@ -105,7 +105,7 @@ def initial_docs_list():
     global data, docs_list
     docs_list.clear()
     for doc in data:
-         docs_list.append(np.ones([len(doc), 2], dtype = np.uint64))
+         docs_list.append(np.ones([len(doc), 2], dtype = np.uint8))
     return
 
 # initialization of topic assignments for each word in each document
