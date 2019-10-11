@@ -292,7 +292,7 @@ def compute_perplexities():
                 dominator = compute_dominator2(context_words, docs_list[d][v][0], k, context_len)                   
 #                p_d_w_k = (topic_word_distribution[k]+ (numerator + gamma)/(dominator + words_num*gamma)) /2
                 p_d_w_k = topic_word_distribution[k][w]
-                theta_d_k = (doc_topic_distributions[d][k]+ (numerator + gamma)/(dominator + words_num*gamma)) /2
+                theta_d_k = (doc_topic_distributions[d][k]+ (numerator + gamma)/(dominator + topic_num*gamma)) /2
 #                theta_d_k = doc_topic_distributions[d][k]
                 total_t += theta_d_k*p_d_w_k
             total_num += 1.0
