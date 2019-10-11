@@ -10,10 +10,10 @@ from matplotlib import pyplot as plt
 import C_LDA
 import tradition_LDA as t_LDA
 
-start = 10
+start = 5
 topics = start 
 end = 1
-iteration_num = 30
+iteration_num = 15
 clip = 50
 palpha = 0.05
 pgamma = 0.05
