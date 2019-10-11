@@ -35,7 +35,7 @@ C_LDA.run(t_data, start, end, iteration_num, save_p, clip, c_len, palpha, pbeta,
 
 dataset = save_p
 y1 = np.load(str(dataset) +"C-LDAper_list"+ str(topics) +".npy",allow_pickle=True)
-x = np.linspace(0, iteration_num, iteration_num)
+x = np.linspace(0, iteration_num, iteration_num+1)
 plt.plot(x[::1], y1[:], "r*-", label='C-LDA', linewidth=1)
 plt.title("Convergence Test By Perplexities")
 plt.ylabel(u"Perplexities")
@@ -48,7 +48,7 @@ t_LDA.run(t_data, start, end, iteration_num, save_p2, clip, c_len, palpha, pbeta
 
 dataset = save_p2
 y2 = np.load(str(dataset) +"LDAper_list"+ str(topics) +".npy",allow_pickle=True)
-x = np.linspace(0, iteration_num, iteration_num)
+x = np.linspace(0, iteration_num, iteration_num+1)
 plt.plot(x[::1], y1[:], "r*-", label='C-LDA', linewidth=1)
 plt.plot(x[::1], y2[:], "b+-", label='LDA', linewidth=1)
 plt.title("Convergence Test By Perplexities")
