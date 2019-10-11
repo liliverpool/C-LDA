@@ -304,6 +304,7 @@ def compute_perplexities():
 def parameter_estimation():
     per_list.clear()
     print(model_name)
+    per_list.append(compute_perplexities())
     for i in range(0, iteration_num):    
         gibbs_sampling()
         print(model_name + "_Iteration" , i, " time:  ", total_time)
