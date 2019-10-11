@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May 29 18:06:50 2018
-
-@author: 
-"""
-
 import numpy as np
 import math
 import time
@@ -30,11 +23,11 @@ iteration_num = 30
 
 # all used distributions
 topic_word = 0*np.ones([1, 1])
-topic_word_list = 0*np.ones([1, 1, 1])
+#topic_word_list = 0*np.ones([1, 1, 1])
 doc_topic = 0*np.ones([1, 1])
 docs_list = []
 doc_topic_distributions = []
-topic_word_distributions = []
+#topic_word_distributions = []
 topic_word_distribution = []
 perplexities = []
 res_list1 = []
@@ -43,6 +36,22 @@ per_list = []
 st= 0
 ed= 0
 total_time = 0
+
+
+# create dictionary for training data save to file
+def create_dictionary_s(data, path):
+    global word_index, index_word
+    for doc in data:
+        for w in doc:
+            if w not in word_index:
+                word_index[w] = len(word_index)
+    index_word = dict(zip(word_index.values(), word_index.keys()))
+    f = open(path + str(model_name)+'word_index.txt','w')
+    f.write(str(word_index))
+    f.close()
+    f = open(path + str(model_name)+'index_word.txt','w')
+    f.write(str(index_word))
+    f.close()
 
 # create dictionary for training data
 def create_dictionary(data):
@@ -68,16 +77,16 @@ def get_a_topic(doc_topic_distribution):
 
 # initialization of all distributions
 def initialize_distributions():
-    global doc_topic_distributions, topic_word_distributions, topic_word_distribution
+    global doc_topic_distributions, topic_word_distribution#, topic_word_distributions
     doc_topic_distributions.clear()
-    topic_word_distributions.clear()
+#    topic_word_distributions.clear()
     topic_word_distribution.clear()
     for i in range(0, docs_num):
         doc_topic_distributions.append(1./topic_num*np.ones([topic_num]))
-        topics_pdf = [] 
-        for j in range(0, topic_num):
-            topics_pdf.append(1./words_num*np.ones([words_num]))
-        topic_word_distributions.append(topics_pdf)
+#        topics_pdf = [] 
+#        for j in range(0, topic_num):
+#            topics_pdf.append(1./words_num*np.ones([words_num]))
+#        topic_word_distributions.append(topics_pdf)
     for i in range(0, topic_num):
         topic_word_distribution.append(1./words_num*np.ones([words_num]))
     return
@@ -87,7 +96,7 @@ def initial_docs_list():
     global data, docs_list
     docs_list.clear()
     for doc in data:
-         docs_list.append(np.ones([len(doc), 2], dtype = np.uint8))
+         docs_list.append(np.ones([len(doc), 2], dtype = np.uint64))
     return
 
 # initialization of topic assignments for each word in each document
@@ -127,14 +136,14 @@ def compute_topic_word():
     return
 
 # computer topic word distribution of document d
-def compute_topic_word_list_doc(d):  
-    global docs_list
-    topic_word_list[d] = np.array(topic_word_list[d])
-    topic_word_list[d] = 0*topic_word_list[d]
-    for i in range(len(docs_list)):
-        for j in range(0, len(docs_list[i])):
-            topic_word_list[d][docs_list[i][j][1]][docs_list[i][j][0]] += 1
-    return
+#def compute_topic_word_list_doc(d):  
+#    global docs_list
+#    topic_word_list[d] = np.array(topic_word_list[d])
+#    topic_word_list[d] = 0*topic_word_list[d]
+#    for i in range(len(docs_list)):
+#        for j in range(0, len(docs_list[i])):
+#            topic_word_list[d][docs_list[i][j][1]][docs_list[i][j][0]] += 1
+#    return
 
 # get the number of word w assigned by topic k in document d
 def get_n_d_k(d, w, k):
@@ -159,20 +168,6 @@ def get_total_n_k(d, w, k):
     if(docs_list[d][w][1] - k == 0):
         total_n_k = total_n_k - 1
     return total_n_k 
-
-def compute_dominator(context_words, k, c_len):
-    result = 0
-    for doc in docs_list:
-        for w1 in context_words:
-            result += get_context_num_all(doc, w1, k, c_len)
-    return result
-
-def compute_numerator(context_words, w2, k, c_len):
-    result = 0
-    for doc in docs_list:
-        for w1 in context_words:
-            result += get_context_num_w2(doc, w1, w2, k, c_len)
-    return result
 
 # recompute topic distribution for word w
 def recompute_w_topic_distribution(d, w):
@@ -237,6 +232,7 @@ def parameter_estimation():
     res_list1.clear()
     res_list2.clear()
     print(model_name)
+    per_list.append(compute_perplexities())
     for i in range(0, iteration_num):    
         gibbs_sampling()
         print(model_name + "_Iteration" , i, " time:  ", total_time)
@@ -260,17 +256,17 @@ def save_result(path):
     np.save(path + str(model_name)+"per_list"+str(topic_num)+".npy", LDA_per_list)
 
 def initialize():
-    global topic_word, doc_topic, topic_word_list
+    global topic_word, doc_topic#, topic_word_list
     topic_word = 0*np.ones([topic_num, words_num])
     doc_topic = 0*np.ones([docs_num, topic_num])
-    topic_word_list = 0*np.ones([docs_num, topic_num, words_num])
+#    topic_word_list = 0*np.ones([docs_num, topic_num, words_num])
     initialize_distributions()
     initial_docs_list()
     initialize_values_docs_list()
     compute_doc_topic()
     compute_topic_word()
-    for i in range(0, docs_num):
-        compute_topic_word_list_doc(i)
+#    for i in range(0, docs_num):
+#        compute_topic_word_list_doc(i)
     return
     
 def run(t_data, start, end_iter, iterations, save_p, clip, c_len, palpha, pbeta, pgamma):
@@ -296,7 +292,3 @@ def run(t_data, start, end_iter, iterations, save_p, clip, c_len, palpha, pbeta,
         topic_num += 2
         np.save("LDA_runtime_"+str(data_clip)+".npy", total_time)
     return 
- 
-
-
-
